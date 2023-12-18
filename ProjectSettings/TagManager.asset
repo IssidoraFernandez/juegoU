@@ -41,3 +41,27 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: bg1
+    uniqueID: 951806669
+    locked: 0
+  - name: bg2
+    uniqueID: 948589447
+    locked: 0
+  - name: bg3
+    uniqueID: 3813978639
+    locked: 0
+  - name: bg4
+    uniqueID: 591098207
+    locked: 0
+  - name: bg5
+    uniqueID: 952503029
+    locked: 0
+  - name: bg6
+    uniqueID: 3607983587
+    locked: 0
+  - name: midground
+    uniqueID: 1573244269
+    locked: 0
+  - name: player
+    uniqueID: 128131
+    locked: 0
