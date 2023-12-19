@@ -10,34 +10,36 @@ public class cameraController : MonoBehaviour
     //asignar los fondos
     public Transform farBackground, middleBackground;
 
+    public float minHeight, maxHeight;
+
     //diferenciar los fondos
-    private float lastXPos;
+    private Vector2 lastPos;
 
     // Start is called before the first frame update
     void Start()
     {
-        //definir la ultima posicion en x del jugador
-        lastXPos = transform.position.x;
-        
+        //para tomar el eje x e y del jugador
+        lastPos = transform.position;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        //seguir al jugador
-        transform.position = new Vector3(target.position.x, target.position.y, transform.position.z);
+
         //el vector3 permite que la camara siga al jugador en el eje x e y, pero no en el z
-        
-        //Cantidad de movimiento a asignar a los fondos
-        float amountToMoveX = transform.position.x - lastXPos;
+        transform.position = new Vector3(target.position.x, Mathf.Clamp(target.position.y, minHeight, maxHeight), transform.position.z);
+
+        //Calcular la cantidad de ejes que se mueve el jugador
+        Vector2 amountToMove = new Vector2(transform.position.x - lastPos.x, transform.position.y - lastPos.y);
 
         //asignar el fondo lejano
-        farBackground.position = farBackground.position + new Vector3(amountToMoveX, 0, 0);
+        farBackground.position = farBackground.position + new Vector3(amountToMove.x, amountToMove.y, 0);
 
         //asignar el fondo medio
-        middleBackground.position += new Vector3(amountToMoveX * 0.5f, 0, 0);
+        middleBackground.position += new Vector3(amountToMove.x, amountToMove.y, 0);
 
-        //actualizar la ultima posicion en x del jugador
-        lastXPos = transform.position.x;
+        //actualizar la ultima posicion del jugador
+        lastPos = transform.position;
     }
 }

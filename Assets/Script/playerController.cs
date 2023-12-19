@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class movPersonaje : MonoBehaviour
 {
+    public static movPersonaje instance;
+
     //header para agrupar variables en el inspector
     //variable para acceder a RigidBody
     [Header("Componentes")]
@@ -20,7 +22,7 @@ public class movPersonaje : MonoBehaviour
     public float velocidad;
 
     [Header("Animator")]
-    private Animator animaciones;
+    public Animator animaciones;
     private SpriteRenderer sprite;
 
     //variable para detectar el piso y evitar doble salto
@@ -29,7 +31,15 @@ public class movPersonaje : MonoBehaviour
     public Transform pisoCheck;
     public LayerMask whatIsGround;
     
+    public float knockbackLenght, knockbackForce;
+    private float knockbackCounter;
+
     
+    private void Awake()
+    {
+        instance = this;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -50,53 +60,65 @@ public class movPersonaje : MonoBehaviour
     void Update()
     {
         //agregar movimiento al personaje
-
-        //obtener los valores de los ejes
-        float movHorizontal = Input.GetAxis("Horizontal");
-        float movVertical = Input.GetAxis("Vertical");
-
-        //buscar propiedad velocity del RigidBody
-        cuerpoRigido.velocity = new Vector2(movHorizontal, movVertical) * velocidad;
-
-        isGrounded = Physics2D.OverlapCircle(pisoCheck.position, .2f, whatIsGround);
-
-        if (isGrounded)
+        if (knockbackCounter <= 0)
         {
-            canDoubleJump = true;
-        }
+            //buscar propiedad velocity del RigidBody
+            cuerpoRigido.velocity = new Vector2(velocidad * Input.GetAxis("Horizontal"), cuerpoRigido.velocity.y);
 
-        //agregar salto al personaje
-        if (Input.GetButtonDown("Jump"))
-        { // si se presiona la tecla espacio, salta
+            isGrounded = Physics2D.OverlapCircle(pisoCheck.position, .2f, whatIsGround);
+
             if (isGrounded)
-            { 
-                cuerpoRigido.velocity = new Vector2(cuerpoRigido.velocity.x, fuerzaSalto);
-            
-            }
-            else
             {
-                if(canDoubleJump)
+                canDoubleJump = true;
+            }
+
+            //agregar salto al personaje
+            if (Input.GetButtonDown("Jump"))
+            { // si se presiona la tecla espacio, salta
+                if (isGrounded)
                 {
                     cuerpoRigido.velocity = new Vector2(cuerpoRigido.velocity.x, fuerzaSalto);
-                    canDoubleJump = false;
+
                 }
+                else
+                {
+                    if (canDoubleJump)
+                    {
+                        cuerpoRigido.velocity = new Vector2(cuerpoRigido.velocity.x, fuerzaSalto);
+                        canDoubleJump = false;
+                    }
+                }
+
+
             }
-            
+            // cambiar la orientacion del personaje segun la direccion del movimiento
+            if (cuerpoRigido.velocity.x > 0)
+            {
+                sprite.flipX = true;
+
+            }
+            else if (cuerpoRigido.velocity.x < 0)
+            {
+                sprite.flipX = false;
+            }
 
         }
-        // cambiar la orientacion del personaje segun la direccion del movimiento
-        if (cuerpoRigido.velocity.x > 0)
+        else
         {
-            sprite.flipX = true;
-
-        } else if (cuerpoRigido.velocity.x < 0)
-        {
-            sprite.flipX = false;
+            knockbackCounter -= Time.deltaTime;
         }
+
 
 
 
         animaciones.SetFloat("velocidad", Mathf.Abs(cuerpoRigido.velocity.x));
         animaciones.SetBool("isGrounded", isGrounded);
+    }
+
+    public void Knockback()
+    {
+        knockbackCounter = knockbackLenght;
+
+        cuerpoRigido.velocity = new Vector2(0f, knockbackForce);
     }
 }
